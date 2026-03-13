@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>For Krissy — From Bird</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      font-family: 'Lato', sans-serif;
+      background: #fdf8f4;
+      color: #3a2a1e;
+    }
+
+    /* ── LOCK SCREEN ── */
+    #lock-screen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: linear-gradient(160deg, #1a0a0a 0%, #3d1515 50%, #1a0a0a 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 2rem;
+    }
+    #lock-screen.hidden { display: none; }
+    .lock-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.6rem, 5vw, 2.6rem);
+      color: #f5d0d0;
+      margin-bottom: 0.5rem;
+    }
+    .lock-sub {
+      font-size: 1rem; color: rgba(245,208,208,0.7);
+      font-style: italic; margin-bottom: 2.5rem;
+    }
+    .lock-hearts { font-size: 2rem; margin-bottom: 1.5rem; letter-spacing: 0.5rem; }
+    #lockInput {
+      width: min(340px, 90vw);
+      padding: 0.9rem 1.2rem;
+      font-size: 1.1rem;
+      border: 2px solid rgba(245,208,208,0.4);
+      border-radius: 50px;
+      background: rgba(255,255,255,0.08);
+      color: #f5d0d0;
+      text-align: center;
+      outline: none;
+      margin-bottom: 1rem;
+      font-family: 'Playfair Display', serif;
+      letter-spacing: 0.15em;
+    }
+    #lockInput::placeholder { color: rgba(245,208,208,0.4); }
+    .lock-btn {
+      background: linear-gradient(135deg, #c0392b, #922b21);
+      color: #fff;
+      border: none;
+      padding: 0.85rem 2.5rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-family: 'Playfair Display', serif;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .lock-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(192,57,43,0.4); }
+    #lockError { color: #f5a0a0; font-size: 0.9rem; margin-top: 1rem; min-height: 1.2em; }
+
+    /* ── FLOATING MUSIC PLAYER ── */
+    #floating-player {
+      display: none;
+      position: fixed; bottom: 20px; right: 20px; z-index: 9998;
+      background: rgba(58,10,10,0.95);
+      border: 1px solid rgba(245,208,208,0.3);
+      border-radius: 14px;
+      padding: 12px 14px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      width: 280px;
+    }
+    #floating-player p {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      color: #f5d0d0;
+      font-size: 0.8rem;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    #floating-player iframe {
+      width: 100%; height: 120px; border: none; border-radius: 8px;
+    }
+    .close-player-btn {
+      margin-top: 8px; width: 100%;
+      background: transparent;
+      border: 1px solid rgba(245,208,208,0.3);
+      color: rgba(255,255,255,0.5);
+      font-size: 0.75rem; padding: 4px;
+      border-radius: 6px; cursor: pointer;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 60vh;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-image: url('https://files.manuscdn.com/user_upload_by_module/session_file/310519663090744767/QGSOvVxDlqRcNEjl.jpg');
+      background-size: cover;
+      background-position: center top;
+      background-attachment: fixed;
+      filter: brightness(0.55) saturate(0.9);
+    }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(58,10,10,0.3) 0%, rgba(253,248,244,0.95) 100%);
+    }
+    .hero-content {
+      position: relative; z-index: 1;
+      padding: 4rem 2rem 3rem;
+    }
+    .hero-eyebrow {
+      font-size: 0.85rem; letter-spacing: 0.25em; text-transform: uppercase;
+      color: #c0392b; margin-bottom: 1rem;
+    }
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      color: #3a2a1e;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .hero-subtitle {
+      font-size: 1.1rem; color: #7a5a4a;
+      font-style: italic;
+      max-width: 500px; margin: 0 auto;
+    }
+
+    /* ── LETTER ── */
+    .letter-section {
+      max-width: 720px; margin: 0 auto;
+      padding: 3rem 2rem 2rem;
+    }
+    .letter-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 3rem 3.5rem;
+      box-shadow: 0 4px 40px rgba(58,10,10,0.08);
+      border-top: 4px solid #c0392b;
+    }
+    .letter-card p {
+      font-size: 1.08rem;
+      line-height: 1.9;
+      color: #3a2a1e;
+      margin-bottom: 1.4rem;
+    }
+    .letter-card p:last-child { margin-bottom: 0; }
+    .letter-divider {
+      border: none;
+      border-top: 1px solid rgba(192,57,43,0.2);
+      margin: 2rem 0;
+    }
+    .letter-closing {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.2rem;
+      color: #c0392b;
+      margin-top: 2rem;
+      text-align: right;
+    }
+
+    /* ── SONG SECTION ── */
+    .song-section {
+      max-width: 720px; margin: 0 auto;
+      padding: 1rem 2rem 4rem;
+    }
+    .song-card {
+      background: linear-gradient(135deg, #3a1010, #5c1a1a);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      color: #f5d0d0;
+    }
+    .song-card p { font-size: 0.95rem; line-height: 1.7; margin-bottom: 1rem; opacity: 0.85; }
+    .song-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-style: italic; opacity: 1 !important; }
+    .yt-embed { margin-top: 1.2rem; border-radius: 10px; overflow: hidden; }
+    .yt-embed iframe { width: 100%; height: 200px; border: none; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.85rem;
+      color: rgba(58,42,30,0.4);
+      font-style: italic;
+    }
+
+    @media (max-width: 600px) {
+      .letter-card { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── LOCK SCREEN ── -->
+<div id="lock-screen">
+  <div class="lock-hearts">🌸 🌸 🌸</div>
+  <h1 class="lock-title">This is for you, Krissy.</h1>
+  <p class="lock-sub">Only you know how to open this.</p>
+  <input type="text" id="lockInput" placeholder="Enter your secret word..." autocomplete="off"/>
+  <button class="lock-btn" onclick="checkWord()">Open the Letter ♥</button>
+  <p id="lockError"></p>
+</div>
+
+<!-- ── FLOATING MUSIC PLAYER ── -->
+<div id="floating-player">
+  <p>🎵 Playing just for you, Krissy</p>
+  <iframe id="autoplay-song" src="https://www.youtube.com/embed/UumRkksN-LE?autoplay=0&rel=0&modestbranding=1" allowfullscreen allow="autoplay"></iframe>
+  <button class="close-player-btn" onclick="document.getElementById('floating-player').style.display='none'">✕ Close player</button>
+</div>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">A letter from your big sister</p>
+    <h1 class="hero-title">To My Baby Sister,<br/><em>Krissy</em></h1>
+    <p class="hero-subtitle">"God gave me my baby sister — and I would choose you every single time."</p>
+  </div>
+</section>
+
+<!-- ── LETTER ── -->
+<section class="letter-section">
+  <div class="letter-card">
+    <p>Do you know what it felt like the day you were born?</p>
+    <p>I was just a little girl myself — but the moment they put you in my arms, something in me changed forever. I looked down at your tiny face and I thought, <em>that is mine.</em> Not a toy. Not a doll. Mine. My baby sister. The most important thing God had ever given me.</p>
+    <p>Two years and a few weeks apart. Close enough that I never had to wonder what it felt like to be alone. Because I always had you. And you always had me.</p>
+    <hr class="letter-divider"/>
+    <p>I think about the little things all the time. The tricycle rides through the jails — just the two of us, like we owned the whole world. The nights in the neighborhood when every kid on the block was out, but my eyes were always on you. Always on you. Because that was my job. My most important job. And I took it seriously even before I knew what serious meant.</p>
+    <p>I remember the thrush medicine. Lord, Krissy — I turned your eyes purple and I was so scared I had hurt you. But you just looked up at me. Trusting. Like you always did. Like you always have. You never once doubted that I would take care of you. And that trust — that has been one of the greatest honors of my life.</p>
+    <p>You were my little guinea pig for every crazy idea I had, every toy I built for us, every adventure I dreamed up. And you never said no. You just climbed in, held on, and trusted me to get us through it. That is who you have always been. Brave. Trusting. Mine.</p>
+    <hr class="letter-divider"/>
+    <p>And then life happened.</p>
+    <p>We grew up. We had kids of our own. We walked through things that would have broken people who were not built the way we are built. The paths we each took — wild, unexpected, life-changing — and somehow, somehow, they kept leading us back to each other.</p>
+    <p>Because that is what God does. He does not make mistakes. He gave you to me on purpose. He knew I needed a little sister who would make me laugh, make me crazy, make me proud, and make me feel like no matter what happened in this world, I was never truly alone.</p>
+    <hr class="letter-divider"/>
+    <p>Krissy, I am so proud of you. Not just for the big things — but for all the quiet, unseen ways you have shown up. For the woman you are. For the mother you became. For the way you carry yourself even when life has been heavy.</p>
+    <p>I see you. I have always seen you.</p>
+    <p>And I need you to know — no matter how much time passes, no matter how much life pulls us in different directions — you will always be my baby sister. I will always be the one looking out for you. That does not have an expiration date.</p>
+    <p>God gave me my baby sister. And I would choose you every single time.</p>
+    <p>I love you more than you will ever fully know.</p>
+    <div class="letter-closing">Your Big Sis, Bird 💙</div>
+  </div>
+</section>
+
+<!-- ── SONG ── -->
+<section class="song-section">
+  <div class="song-card">
+    <p class="song-title">🎵 "More Like Her" — Miranda Lambert</p>
+    <p>This song is for you, Krissy. Every time I hear it, I think of you.</p>
+    <div class="yt-embed">
+      <iframe src="https://www.youtube.com/embed/UumRkksN-LE?rel=0&modestbranding=1" allowfullscreen title="More Like Her - Miranda Lambert"></iframe>
+    </div>
+  </div>
+</section>
+
+<footer>Made with love, just for Krissy 🌸</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.body.style.overflow = 'hidden';
+});
+document.getElementById('lockInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') checkWord();
+});
+function checkWord() {
+  var val = document.getElementById('lockInput').value.trim().toLowerCase();
+  if (val === 'krissy' || val === 'bird' || val === 'sisters') {
+    document.getElementById('lock-screen').classList.add('hidden');
+    document.body.style.overflow = '';
+    var player = document.getElementById('floating-player');
+    if (player) {
+      player.style.display = 'block';
+      var iframe = player.querySelector('iframe');
+      if (iframe) iframe.src = iframe.src.replace('autoplay=0', 'autoplay=1');
+    }
+  } else {
+    document.getElementById('lockError').textContent = 'That\'s not it, love. Try again. ♥';
+    document.getElementById('lockInput').value = '';
+    document.getElementById('lockInput').focus();
+  }
+}
+</script>
+
+</body>
+</html>
