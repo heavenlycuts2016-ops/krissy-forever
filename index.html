@@ -186,6 +186,26 @@
     .yt-embed { margin-top: 1.2rem; border-radius: 10px; overflow: hidden; }
     .yt-embed iframe { width: 100%; height: 200px; border: none; }
 
+    /* ── TTS BUTTON ── */
+    #tts-bar {
+      display: none;
+      position: sticky; top: 0; z-index: 999;
+      background: rgba(58,10,10,0.97);
+      padding: 10px 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(245,208,208,0.2);
+    }
+    .tts-btn {
+      background: linear-gradient(135deg, #c0392b, #922b21);
+      color: #fff; border: none;
+      padding: 8px 22px; border-radius: 50px;
+      font-size: 0.9rem; font-family: 'Playfair Display', serif;
+      cursor: pointer; margin: 0 5px;
+      transition: transform 0.2s;
+    }
+    .tts-btn:hover { transform: translateY(-1px); }
+    .tts-label { color: #f5d0d0; font-size: 0.85rem; font-style: italic; margin-right: 10px; }
+
     /* ── FOOTER ── */
     footer {
       text-align: center;
@@ -217,6 +237,13 @@
   <p>🎵 Playing just for you, Krissy</p>
   <iframe id="autoplay-song" src="https://www.youtube.com/embed/UumRkksN-LE?autoplay=0&rel=0&modestbranding=1" allowfullscreen allow="autoplay"></iframe>
   <button class="close-player-btn" onclick="document.getElementById('floating-player').style.display='none'">✕ Close player</button>
+</div>
+
+<!-- ── TTS BAR ── -->
+<div id="tts-bar">
+  <span class="tts-label">🔊 Reading to you, Krissy...</span>
+  <button class="tts-btn" onclick="pauseResumeTTS()" id="tts-pause-btn">Pause</button>
+  <button class="tts-btn" onclick="stopTTS()">Stop</button>
 </div>
 
 <!-- ── HERO ── -->
@@ -274,6 +301,59 @@ document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('lockInput').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') checkWord();
 });
+var ttsUtterance = null;
+var ttsPaused = false;
+
+function getLetterText() {
+  var card = document.querySelector('.letter-card');
+  return card ? card.innerText : '';
+}
+
+function startTTS() {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  ttsUtterance = new SpeechSynthesisUtterance(getLetterText());
+  ttsUtterance.rate = 0.88;
+  ttsUtterance.pitch = 1.05;
+  ttsUtterance.volume = 1;
+  var voices = window.speechSynthesis.getVoices();
+  var preferred = voices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('karen') || v.name.toLowerCase().includes('victoria') || v.name.toLowerCase().includes('zira'));
+  if (preferred) ttsUtterance.voice = preferred;
+  ttsUtterance.onend = function() {
+    document.getElementById('tts-bar').style.display = 'none';
+    // Auto-play song after reading finishes
+    var player = document.getElementById('floating-player');
+    if (player) {
+      player.style.display = 'block';
+      var iframe = player.querySelector('iframe');
+      if (iframe) iframe.src = iframe.src.replace('autoplay=0','autoplay=1');
+    }
+  };
+  window.speechSynthesis.speak(ttsUtterance);
+  document.getElementById('tts-bar').style.display = 'block';
+  ttsPaused = false;
+  document.getElementById('tts-pause-btn').textContent = 'Pause';
+}
+
+function pauseResumeTTS() {
+  if (!window.speechSynthesis) return;
+  if (ttsPaused) {
+    window.speechSynthesis.resume();
+    ttsPaused = false;
+    document.getElementById('tts-pause-btn').textContent = 'Pause';
+  } else {
+    window.speechSynthesis.pause();
+    ttsPaused = true;
+    document.getElementById('tts-pause-btn').textContent = 'Resume';
+  }
+}
+
+function stopTTS() {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  document.getElementById('tts-bar').style.display = 'none';
+}
+
 function checkWord() {
   var val = document.getElementById('lockInput').value.trim().toLowerCase();
   if (val === 'shera') {
@@ -285,6 +365,14 @@ function checkWord() {
       var iframe = player.querySelector('iframe');
       if (iframe) iframe.src = iframe.src.replace('autoplay=0', 'autoplay=1');
     }
+    // Auto-start reading after a short delay
+    setTimeout(function() {
+      if (window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.onvoiceschanged = function() { startTTS(); };
+      } else {
+        startTTS();
+      }
+    }, 1200);
   } else {
     document.getElementById('lockError').textContent = 'That\'s not it, love. Try again. ♥';
     document.getElementById('lockInput').value = '';
